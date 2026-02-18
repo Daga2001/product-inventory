@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import axios from 'axios';
 import { Product, Zone } from '../api/types';
 import { createProduct, deleteProduct, updateProduct } from '../api/inventory';
 
@@ -18,6 +19,54 @@ const emptyForm = {
   quantity: 0,
   expiration_date: '',
   zone_id: ''
+};
+
+const normalizeDateInput = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const mdy = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (mdy) return `${mdy[3]}-${mdy[1]}-${mdy[2]}`;
+  const parsed = new Date(trimmed);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().slice(0, 10);
+  }
+  return trimmed;
+};
+
+const getFriendlyError = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+    if (!status) {
+      return 'Unable to reach the server. Please try again.';
+    }
+    if (status === 400) {
+      const details = error.response?.data?.details as
+        | { fieldErrors?: { body?: string[] } }
+        | undefined;
+      const bodyErrors = details?.fieldErrors?.body;
+      if (bodyErrors?.length) {
+        return bodyErrors.join(' ');
+      }
+      return 'Please check your inputs and try again.';
+    }
+    if (status === 401) {
+      return 'You are not signed in. Please sign in and try again.';
+    }
+    if (status === 403) {
+      return 'You do not have permission to perform this action.';
+    }
+    if (status === 404) {
+      return 'Item not found. It may have been removed.';
+    }
+    return 'Action failed. Please try again.';
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return 'Action failed. Please try again.';
 };
 
 const ProductManager = ({
@@ -81,11 +130,16 @@ const ProductManager = ({
     setStatus(null);
 
     try {
+      const normalizedExpiration = normalizeDateInput(form.expiration_date);
+      if (normalizedExpiration && !/^\d{4}-\d{2}-\d{2}$/.test(normalizedExpiration)) {
+        setStatus('Expiration date must be in YYYY-MM-DD format.');
+        return;
+      }
       const payload = {
         name: form.name,
         batch_number: form.batch_number,
         quantity: Number(form.quantity),
-        expiration_date: form.expiration_date || undefined,
+        expiration_date: normalizedExpiration,
         zone_id: form.zone_id || null
       };
 
@@ -101,7 +155,7 @@ const ProductManager = ({
 
       setForm(emptyForm);
     } catch (error) {
-      setStatus('Action failed. Please try again.');
+      setStatus(getFriendlyError(error));
     } finally {
       setSaving(false);
     }
@@ -125,7 +179,7 @@ const ProductManager = ({
       onChange(products.filter((item) => item.id !== product.id));
       setStatus('Product deleted.');
     } catch (error) {
-      setStatus('Delete failed. Please try again.');
+      setStatus(getFriendlyError(error));
     }
   };
 
@@ -272,7 +326,7 @@ const ProductManager = ({
         </button>
       </form>
 
-      {status ? <p className="mt-3 text-sm text-slate">{status}</p> : null}
+      {status ? <p className="mt-3 text-sm text-warning">{status}</p> : null}
       {!status && error ? <p className="mt-3 text-sm text-warning">{error}</p> : null}
 
       <div className="mt-6">
