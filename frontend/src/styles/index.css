@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  background: radial-gradient(circle at top left, #e0f2fe 0%, #f8fafc 35%, #f1f5f9 100%);
+}
+
+.card {
+  @apply bg-panel shadow-card rounded-2xl border border-slate/10;
+}
+
+.badge {
+  @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium bg-accentSoft text-ink;
+}
+
+.grid-cell {
+  @apply rounded-xl border border-slate/20 bg-white/70 shadow-sm transition;
+}
+
+.grid-cell:hover {
+  @apply border-accent/50 shadow-card;
+}
+
+.modal-backdrop {
+  @apply fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4;
+}
+
+.modal-panel {
+  @apply max-w-2xl w-full bg-white rounded-3xl shadow-soft border border-slate/10;
+}
