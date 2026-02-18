@@ -17,10 +17,22 @@ const mockZones: Zone[] = [
   { id: 'zone-6', name: 'Row2-2', position_x: 2, position_y: 2, created_at: '' },
   { id: 'zone-7', name: 'Row2-3', position_x: 3, position_y: 2, created_at: '' },
   { id: 'zone-8', name: 'Row2-4', position_x: 4, position_y: 2, created_at: '' },
-  { id: 'zone-9', name: 'Row3-1', position_x: 1, position_y: 3, created_at: '' },
-  { id: 'zone-10', name: 'Row3-2', position_x: 2, position_y: 3, created_at: '' },
-  { id: 'zone-11', name: 'Row3-3', position_x: 3, position_y: 3, created_at: '' },
-  { id: 'zone-12', name: 'Row3-4', position_x: 4, position_y: 3, created_at: '' }
+  { id: 'zone-9', name: 'Row2-5', position_x: 5, position_y: 2, created_at: '' },
+  { id: 'zone-10', name: 'Row3-1', position_x: 1, position_y: 3, created_at: '' },
+  { id: 'zone-11', name: 'Row3-2', position_x: 2, position_y: 3, created_at: '' },
+  { id: 'zone-12', name: 'Row3-3', position_x: 3, position_y: 3, created_at: '' },
+  { id: 'zone-13', name: 'Row3-4', position_x: 4, position_y: 3, created_at: '' },
+  { id: 'zone-14', name: 'Row3-5', position_x: 5, position_y: 3, created_at: '' },
+  { id: 'zone-15', name: 'Row4-1', position_x: 1, position_y: 4, created_at: '' },
+  { id: 'zone-16', name: 'Row4-2', position_x: 2, position_y: 4, created_at: '' },
+  { id: 'zone-17', name: 'Row4-3', position_x: 3, position_y: 4, created_at: '' },
+  { id: 'zone-18', name: 'Row4-4', position_x: 4, position_y: 4, created_at: '' },
+  { id: 'zone-19', name: 'Row4-5', position_x: 5, position_y: 4, created_at: '' },
+  { id: 'zone-20', name: 'Row5-1', position_x: 1, position_y: 5, created_at: '' },
+  { id: 'zone-21', name: 'Row5-2', position_x: 2, position_y: 5, created_at: '' },
+  { id: 'zone-22', name: 'Row5-3', position_x: 3, position_y: 5, created_at: '' },
+  { id: 'zone-23', name: 'Row5-4', position_x: 4, position_y: 5, created_at: '' },
+  { id: 'zone-24', name: 'Row5-5', position_x: 5, position_y: 5, created_at: '' }
 ];
 
 const mockProducts: Product[] = [

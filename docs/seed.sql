@@ -16,10 +16,22 @@ VALUES
   ('Row2-2', 2, 2),
   ('Row2-3', 3, 2),
   ('Row2-4', 4, 2),
+  ('Row2-5', 5, 2),
   ('Row3-1', 1, 3),
   ('Row3-2', 2, 3),
   ('Row3-3', 3, 3),
-  ('Row3-4', 4, 3);
+  ('Row3-4', 4, 3),
+  ('Row3-5', 5, 3),
+  ('Row4-1', 1, 4),
+  ('Row4-2', 2, 4),
+  ('Row4-3', 3, 4),
+  ('Row4-4', 4, 4),
+  ('Row4-5', 5, 4),
+  ('Row5-1', 1, 5),
+  ('Row5-2', 2, 5),
+  ('Row5-3', 3, 5),
+  ('Row5-4', 4, 5),
+  ('Row5-5', 5, 5);
 
 INSERT INTO products (name, batch_number, quantity, expiration_date, zone_id)
 VALUES
