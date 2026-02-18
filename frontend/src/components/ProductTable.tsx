@@ -7,9 +7,9 @@ interface ProductTableProps {
 const ProductTable = ({ products }: ProductTableProps) => {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full text-sm">
+      <table className="min-w-full text-sm table-warm">
         <thead>
-          <tr className="text-left text-slate">
+          <tr className="text-left table-head">
             <th className="py-2">Product</th>
             <th className="py-2">Batch</th>
             <th className="py-2">Qty</th>
@@ -19,16 +19,14 @@ const ProductTable = ({ products }: ProductTableProps) => {
         </thead>
         <tbody>
           {products.map((product) => (
-            <tr key={product.id} className="border-t border-slate/10">
-              <td className="py-3 font-medium text-ink">{product.name}</td>
-              <td className="py-3 text-slate">{product.batch_number}</td>
-              <td className="py-3 text-ink">{product.quantity}</td>
-              <td className="py-3 text-slate">
+            <tr key={product.id} className="table-row">
+              <td className="py-3 font-medium">{product.name}</td>
+              <td className="py-3 muted">{product.batch_number}</td>
+              <td className="py-3">{product.quantity}</td>
+              <td className="py-3 muted">
                 {product.expiration_date ? new Date(product.expiration_date).toLocaleDateString() : '—'}
               </td>
-              <td className="py-3 text-slate">
-                {new Date(product.created_at).toLocaleDateString()}
-              </td>
+              <td className="py-3 muted">{new Date(product.created_at).toLocaleDateString()}</td>
             </tr>
           ))}
         </tbody>

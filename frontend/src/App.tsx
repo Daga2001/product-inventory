@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import DashboardLayout from './components/DashboardLayout';
 import CupboardGrid from './components/CupboardGrid';
 import ZoneModal from './components/ZoneModal';
-import { fetchProducts, fetchZoneProducts, fetchZones } from './api/inventory';
+import { fetchProducts, fetchZoneProducts, fetchZones, updateZone } from './api/inventory';
 import { Product, Zone } from './api/types';
 import ProductTable from './components/ProductTable';
 import ProductManager from './components/ProductManager';
@@ -169,6 +169,28 @@ const App = () => {
     }
   };
 
+  const handleZoneRename = async (zoneId: string, nextName: string) => {
+    const trimmed = nextName.trim();
+    const current = zones.find((zone) => zone.id === zoneId);
+    if (!current || trimmed.length === 0 || trimmed === current.name) {
+      return;
+    }
+
+    const previousName = current.name;
+    setZones((prev) => prev.map((zone) => (zone.id === zoneId ? { ...zone, name: trimmed } : zone)));
+    setSelectedZone((prev) => (prev && prev.id === zoneId ? { ...prev, name: trimmed } : prev));
+
+    try {
+      const updated = await updateZone(zoneId, { name: trimmed });
+      setZones((prev) => prev.map((zone) => (zone.id === zoneId ? updated : zone)));
+      setSelectedZone((prev) => (prev && prev.id === zoneId ? updated : prev));
+    } catch {
+      setZones((prev) => prev.map((zone) => (zone.id === zoneId ? { ...zone, name: previousName } : zone)));
+      setSelectedZone((prev) => (prev && prev.id === zoneId ? { ...prev, name: previousName } : prev));
+      setAlert('Unable to update the zone name. Please try again later.');
+    }
+  };
+
   const handleLoginSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setLoginLoading(true);
@@ -221,7 +243,7 @@ const App = () => {
         <button
           type="button"
           onClick={handleLogout}
-          className="rounded-full border border-slate/20 px-5 py-2 text-sm font-medium"
+          className="rounded-full ghost-pill px-5 py-2 text-sm font-medium"
         >
           Log Out
         </button>
@@ -255,7 +277,7 @@ const App = () => {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.6fr,1fr]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.6fr,1fr] xl:items-start">
         <CupboardGrid
           zones={zones}
           selectedZoneId={selectedZone?.id}
@@ -263,32 +285,33 @@ const App = () => {
           isLoading={zonesLoading}
           error={zonesError}
           placeholderZones={placeholderZones}
+          onRenameZone={handleZoneRename}
         />
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 xl:self-start xl:pt-16">
           <div className="card p-6">
             <h2 className="font-display text-xl">Inventory Overview</h2>
             <p className="mt-2 text-sm text-slate">Live totals across all zones.</p>
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="rounded-2xl bg-surface p-4">
+              <div className="stat-tile">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate">Products</p>
                 <p className="mt-2 text-2xl font-semibold text-ink">
                   {productsLoading ? '—' : stats.totalProducts}
                 </p>
               </div>
-              <div className="rounded-2xl bg-surface p-4">
+              <div className="stat-tile">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate">Total Qty</p>
                 <p className="mt-2 text-2xl font-semibold text-ink">
                   {productsLoading ? '—' : stats.totalQuantity}
                 </p>
               </div>
-              <div className="rounded-2xl bg-surface p-4">
+              <div className="stat-tile">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate">Expiring Soon</p>
                 <p className="mt-2 text-2xl font-semibold text-ink">
                   {productsLoading ? '—' : stats.expiringSoon}
                 </p>
               </div>
-              <div className="rounded-2xl bg-surface p-4">
+              <div className="stat-tile">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate">Zones</p>
                 <p className="mt-2 text-2xl font-semibold text-ink">
                   {zonesLoading ? '—' : zones.length}
@@ -303,17 +326,13 @@ const App = () => {
                 <h2 className="font-display text-xl">Products</h2>
                 <p className="text-sm text-slate">Latest inventory entries.</p>
               </div>
-              <button className="rounded-full border border-slate/20 px-4 py-2 text-sm">Manage</button>
+              <button className="rounded-full ghost-pill px-4 py-2 text-sm">Manage</button>
             </div>
             <div className="mt-4">
               {productsLoading ? (
-                <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
-                  Loading products...
-                </div>
+                <div className="empty-state">Loading products...</div>
               ) : products.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
-                  No products yet.
-                </div>
+                <div className="empty-state">No products yet.</div>
               ) : (
                 <ProductTable products={products.slice(0, 5)} />
               )}
@@ -355,7 +374,7 @@ const App = () => {
               <button
                 type="button"
                 onClick={handleCloseLogin}
-                className="rounded-full border border-slate/20 px-3 py-1 text-sm"
+                className="rounded-full ghost-pill px-3 py-1 text-sm"
               >
                 Close
               </button>

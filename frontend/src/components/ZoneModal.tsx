@@ -24,7 +24,7 @@ const ZoneModal = ({ zone, products, onClose, isLoading = false, error }: ZoneMo
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-slate/20 px-3 py-1 text-sm"
+            className="rounded-full ghost-pill px-3 py-1 text-sm"
           >
             Close
           </button>
@@ -32,17 +32,11 @@ const ZoneModal = ({ zone, products, onClose, isLoading = false, error }: ZoneMo
 
         <div className="mt-6">
           {isLoading ? (
-            <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
-              Loading products...
-            </div>
+            <div className="empty-state">Loading products...</div>
           ) : error ? (
-            <div className="rounded-2xl border border-dashed border-warning/40 p-6 text-center text-warning">
-              Unable to load products for this zone. Please try again later.
-            </div>
+            <div className="empty-state warning">Unable to load products for this zone. Please try again later.</div>
           ) : products.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
-              No products assigned.
-            </div>
+            <div className="empty-state">No products assigned.</div>
           ) : (
             <ProductTable products={products} />
           )}

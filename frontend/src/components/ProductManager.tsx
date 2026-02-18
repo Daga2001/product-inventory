@@ -96,7 +96,7 @@ const ProductManager = ({
         <button
           type="button"
           onClick={() => setForm(emptyForm)}
-          className="rounded-full border border-slate/20 px-4 py-2 text-sm"
+          className="rounded-full ghost-pill px-4 py-2 text-sm"
         >
           Reset Form
         </button>
@@ -234,13 +234,9 @@ const ProductManager = ({
 
       <div className="mt-6">
         {isLoading ? (
-          <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
-            Loading products...
-          </div>
+          <div className="empty-state">Loading products...</div>
         ) : products.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
-            No products yet.
-          </div>
+          <div className="empty-state">No products yet.</div>
         ) : (
           <div className="space-y-3">
             {products.map((product) => (
@@ -258,7 +254,7 @@ const ProductManager = ({
                   <button
                     type="button"
                     onClick={() => handleEdit(product)}
-                    className="rounded-full border border-slate/20 px-4 py-1 text-xs"
+                    className="rounded-full ghost-pill px-4 py-1 text-xs"
                   >
                     Edit
                   </button>

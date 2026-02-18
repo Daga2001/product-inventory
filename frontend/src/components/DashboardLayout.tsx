@@ -12,9 +12,9 @@ const DashboardLayout = ({ title, subtitle, children, actions }: DashboardLayout
     <div className="min-h-screen px-6 py-10 lg:px-16">
       <header className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-slate">Inventory System</p>
-          <h1 className="font-display text-3xl lg:text-4xl text-ink">{title}</h1>
-          <p className="mt-2 text-slate max-w-2xl">{subtitle}</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-white/60">Inventory System</p>
+          <h1 className="font-display text-3xl lg:text-4xl text-white">{title}</h1>
+          <p className="mt-2 text-white/70 max-w-2xl">{subtitle}</p>
         </div>
         <div className="flex items-center gap-3">
           {actions ?? (
