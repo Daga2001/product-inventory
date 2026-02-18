@@ -170,12 +170,15 @@ const ProductManager = ({
   };
 
   const handleEdit = (product: Product) => {
+    const normalizedExpiration = product.expiration_date
+      ? normalizeDateInput(product.expiration_date) ?? ''
+      : '';
     setForm({
       id: product.id,
       name: product.name,
       batch_number: product.batch_number,
       quantity: product.quantity,
-      expiration_date: product.expiration_date ?? '',
+      expiration_date: normalizedExpiration,
       zone_id: product.zone_id ?? ''
     });
   };
