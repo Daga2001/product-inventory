@@ -59,6 +59,7 @@ const App = () => {
   const [zonesError, setZonesError] = useState<string | null>(null);
   const [productsError, setProductsError] = useState<string | null>(null);
   const [zoneProductsError, setZoneProductsError] = useState<string | null>(null);
+  const [productsPage, setProductsPage] = useState(1);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -201,6 +202,17 @@ const App = () => {
     }).length;
     return { totalProducts: products.length, totalQuantity, expiringSoon };
   }, [products]);
+
+  const productsPerPage = 5;
+  const totalProductPages = Math.max(1, Math.ceil(products.length / productsPerPage));
+  const pagedProducts = useMemo(() => {
+    const start = (productsPage - 1) * productsPerPage;
+    return products.slice(start, start + productsPerPage);
+  }, [products, productsPage]);
+
+  useEffect(() => {
+    setProductsPage((prev) => Math.min(prev, totalProductPages));
+  }, [totalProductPages]);
 
   const handleZoneSelect = async (zone: Zone) => {
     setSelectedZone(zone);
@@ -406,9 +418,34 @@ const App = () => {
               ) : products.length === 0 ? (
                 <div className="empty-state">No products yet.</div>
               ) : (
-                <ProductTable products={products.slice(0, 5)} />
+                <ProductTable products={pagedProducts} />
               )}
             </div>
+            {products.length > productsPerPage ? (
+              <div className="mt-4 flex items-center justify-between text-sm text-slate">
+                <span>
+                  Page {productsPage} of {totalProductPages}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setProductsPage((prev) => Math.max(1, prev - 1))}
+                    disabled={productsPage === 1}
+                    className="rounded-full ghost-pill px-3 py-1 text-xs disabled:opacity-50"
+                  >
+                    Prev
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setProductsPage((prev) => Math.min(totalProductPages, prev + 1))}
+                    disabled={productsPage === totalProductPages}
+                    className="rounded-full ghost-pill px-3 py-1 text-xs disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Product, Zone } from '../api/types';
 import { createProduct, deleteProduct, updateProduct } from '../api/inventory';
 
@@ -31,6 +31,18 @@ const ProductManager = ({
   const [form, setForm] = useState(emptyForm);
   const [status, setStatus] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [listPage, setListPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const totalPages = Math.max(1, Math.ceil(products.length / pageSize));
+  const pagedProducts = useMemo(() => {
+    const start = (listPage - 1) * pageSize;
+    return products.slice(start, start + pageSize);
+  }, [products, listPage, pageSize]);
+
+  useEffect(() => {
+    setListPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -42,7 +54,7 @@ const ProductManager = ({
         name: form.name,
         batch_number: form.batch_number,
         quantity: Number(form.quantity),
-        expiration_date: form.expiration_date || null,
+        expiration_date: form.expiration_date || undefined,
         zone_id: form.zone_id || null
       };
 
@@ -233,13 +245,56 @@ const ProductManager = ({
       {!status && error ? <p className="mt-3 text-sm text-warning">{error}</p> : null}
 
       <div className="mt-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate">
+          <label className="flex items-center gap-2">
+            <span>Rows per page</span>
+            <select
+              className="form-field w-24"
+              value={pageSize}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value));
+                setListPage(1);
+              }}
+              disabled={isLoading}
+            >
+              {[5, 10, 15, 20].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </label>
+          {products.length > pageSize ? (
+            <div className="flex items-center gap-2">
+              <span>
+                Page {listPage} of {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setListPage((prev) => Math.max(1, prev - 1))}
+                disabled={listPage === 1}
+                className="rounded-full ghost-pill px-3 py-1 text-xs disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                onClick={() => setListPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={listPage === totalPages}
+                className="rounded-full ghost-pill px-3 py-1 text-xs disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          ) : null}
+        </div>
         {isLoading ? (
           <div className="empty-state">Loading products...</div>
         ) : products.length === 0 ? (
           <div className="empty-state">No products yet.</div>
         ) : (
           <div className="space-y-3">
-            {products.map((product) => (
+            {pagedProducts.map((product) => (
               <div
                 key={product.id}
                 className="flex flex-col gap-2 rounded-2xl border border-slate/10 p-4 md:flex-row md:items-center md:justify-between"
