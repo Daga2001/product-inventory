@@ -2,24 +2,24 @@ import { zoneRepository } from '../repositories/zoneRepository.js';
 import { AppError } from '../utils/errors.js';
 
 export const zoneService = {
-  async list() {
-    return zoneRepository.findAll();
+  async list(userId: string) {
+    return zoneRepository.findAll(userId);
   },
-  async create(input: { name: string; position_x: number; position_y: number }) {
-    return zoneRepository.create(input);
+  async create(userId: string, input: { name: string; position_x: number; position_y: number }) {
+    return zoneRepository.create(userId, input);
   },
-  async update(id: string, input: { name?: string; position_x?: number; position_y?: number }) {
-    const zone = await zoneRepository.findById(id);
+  async update(userId: string, id: string, input: { name?: string; position_x?: number; position_y?: number }) {
+    const zone = await zoneRepository.findById(userId, id);
     if (!zone) {
       throw new AppError('Zone not found', 404);
     }
-    return zoneRepository.update(id, input);
+    return zoneRepository.update(userId, id, input);
   },
-  async remove(id: string) {
-    const zone = await zoneRepository.findById(id);
+  async remove(userId: string, id: string) {
+    const zone = await zoneRepository.findById(userId, id);
     if (!zone) {
       throw new AppError('Zone not found', 404);
     }
-    await zoneRepository.remove(id);
+    await zoneRepository.remove(userId, id);
   }
 };

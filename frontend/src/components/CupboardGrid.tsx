@@ -7,7 +7,8 @@ interface CupboardGridProps {
   isLoading?: boolean;
   error?: string | null;
   placeholderZones?: Zone[];
-  onRenameZone?: (zoneId: string, name: string) => void;
+  onRenameZone?: (zone: Zone, name: string) => void;
+  templateResetToken?: number;
 }
 
 const CupboardGrid = ({
@@ -17,11 +18,16 @@ const CupboardGrid = ({
   isLoading = false,
   error,
   placeholderZones,
-  onRenameZone
+  onRenameZone,
+  templateResetToken = 0
 }: CupboardGridProps) => {
+  const hasTemplate = (placeholderZones?.length ?? 0) > 0;
   const hasRealZones = zones.length > 0;
-  const isPlaceholderMode = !hasRealZones && (placeholderZones?.length ?? 0) > 0;
-  const displayZones = hasRealZones ? zones : placeholderZones ?? [];
+  const isPlaceholderMode = !hasRealZones && hasTemplate;
+  const zoneByPosition = new Map(zones.map((zone) => [`${zone.position_x}-${zone.position_y}`, zone]));
+  const displayZones = hasTemplate
+    ? placeholderZones!.map((zone) => zoneByPosition.get(`${zone.position_x}-${zone.position_y}`) ?? zone)
+    : zones;
   const topZones = displayZones.filter((zone) => zone.position_y === 1);
   const lowerZones = displayZones.filter((zone) => zone.position_y > 1);
   const lowerMaxX = Math.max(...lowerZones.map((zone) => zone.position_x), 5);
@@ -30,7 +36,7 @@ const CupboardGrid = ({
   const topRowHeight = 180;
   const rowHeight = lowerMaxY > 4 ? 96 : 110;
   const hasZones = displayZones.length > 0;
-  const zoneCount = hasRealZones ? zones.length : placeholderZones?.length ?? 0;
+  const zoneCount = hasTemplate ? displayZones.length : zones.length;
 
   return (
     <section className="cupboard-card">
@@ -62,8 +68,9 @@ const CupboardGrid = ({
                   >
                     {topZones.map((zone) => {
                       const isActive = zone.id === selectedZoneId;
-                      const isReadOnly = isPlaceholderMode || !onRenameZone;
-                      const isClickable = !isPlaceholderMode;
+                      const isTemplateZone = zone.id.startsWith('template-');
+                      const isReadOnly = !onRenameZone;
+                      const isClickable = !isTemplateZone;
                       return (
                         <div
                           key={zone.id}
@@ -82,12 +89,16 @@ const CupboardGrid = ({
                               : undefined
                           }
                           className={`cupboard-cell ${isActive ? 'is-active' : ''} ${
-                            isReadOnly ? 'is-disabled' : 'is-clickable'
+                            isClickable ? 'is-clickable' : 'is-template'
                           }`}
                         >
                           <span className="cupboard-knob" aria-hidden="true" />
                           <input
-                            key={`${zone.id}-${zone.name}`}
+                            key={
+                              isTemplateZone
+                                ? `${zone.id}-${templateResetToken}`
+                                : `${zone.id}-${zone.name}`
+                            }
                             className="zone-name-input"
                             defaultValue={zone.name}
                             readOnly={isReadOnly}
@@ -108,7 +119,7 @@ const CupboardGrid = ({
                                 event.currentTarget.value = zone.name;
                                 return;
                               }
-                              onRenameZone?.(zone.id, nextValue);
+                              onRenameZone?.(zone, nextValue);
                             }}
                           />
                           <span className="cupboard-handle" aria-hidden="true" />
@@ -132,8 +143,9 @@ const CupboardGrid = ({
                     >
                       {lowerZones.map((zone) => {
                         const isActive = zone.id === selectedZoneId;
-                        const isReadOnly = isPlaceholderMode || !onRenameZone;
-                        const isClickable = !isPlaceholderMode;
+                        const isTemplateZone = zone.id.startsWith('template-');
+                        const isReadOnly = !onRenameZone;
+                        const isClickable = !isTemplateZone;
                         return (
                           <div
                             key={zone.id}
@@ -152,7 +164,7 @@ const CupboardGrid = ({
                                 : undefined
                             }
                             className={`cupboard-cell ${isActive ? 'is-active' : ''} ${
-                              isReadOnly ? 'is-disabled' : 'is-clickable'
+                              isClickable ? 'is-clickable' : 'is-template'
                             }`}
                             style={{
                               gridColumn: `${zone.position_x}`,
@@ -161,7 +173,11 @@ const CupboardGrid = ({
                           >
                             <span className="cupboard-knob" aria-hidden="true" />
                             <input
-                              key={`${zone.id}-${zone.name}`}
+                              key={
+                                isTemplateZone
+                                  ? `${zone.id}-${templateResetToken}`
+                                  : `${zone.id}-${zone.name}`
+                              }
                               className="zone-name-input"
                               defaultValue={zone.name}
                               readOnly={isReadOnly}
@@ -182,7 +198,7 @@ const CupboardGrid = ({
                                   event.currentTarget.value = zone.name;
                                   return;
                                 }
-                                onRenameZone?.(zone.id, nextValue);
+                                onRenameZone?.(zone, nextValue);
                               }}
                             />
                             <span className="cupboard-handle" aria-hidden="true" />

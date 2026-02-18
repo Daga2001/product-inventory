@@ -11,6 +11,7 @@ export interface User {
 
 export interface Zone {
   id: string;
+  user_id: string;
   name: string;
   position_x: number;
   position_y: number;
@@ -19,6 +20,7 @@ export interface Zone {
 
 export interface Product {
   id: string;
+  user_id: string;
   name: string;
   batch_number: string;
   quantity: number;

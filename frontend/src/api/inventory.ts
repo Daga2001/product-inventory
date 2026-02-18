@@ -6,6 +6,11 @@ export const fetchZones = async (): Promise<Zone[]> => {
   return response.data;
 };
 
+export const createZone = async (payload: Pick<Zone, 'name' | 'position_x' | 'position_y'>): Promise<Zone> => {
+  const response = await api.post<Zone>('/zones', payload);
+  return response.data;
+};
+
 export const updateZone = async (
   id: string,
   payload: Partial<Pick<Zone, 'name' | 'position_x' | 'position_y'>>

@@ -8,50 +8,50 @@ import { zoneRepository } from '../repositories/zoneRepository.js';
 import { AppError } from '../utils/errors.js';
 
 export const productService = {
-  async list(filters: ProductFilters) {
-    return productRepository.findAll(filters);
+  async list(userId: string, filters: ProductFilters) {
+    return productRepository.findAll(userId, filters);
   },
-  async get(id: string) {
-    const product = await productRepository.findById(id);
+  async get(userId: string, id: string) {
+    const product = await productRepository.findById(userId, id);
     if (!product) {
       throw new AppError('Product not found', 404);
     }
     return product;
   },
-  async listByZone(zoneId: string) {
-    const zone = await zoneRepository.findById(zoneId);
+  async listByZone(userId: string, zoneId: string) {
+    const zone = await zoneRepository.findById(userId, zoneId);
     if (!zone) {
       throw new AppError('Zone not found', 404);
     }
-    return productRepository.findByZoneId(zoneId);
+    return productRepository.findByZoneId(userId, zoneId);
   },
-  async create(input: ProductCreateInput) {
+  async create(userId: string, input: ProductCreateInput) {
     if (input.zone_id) {
-      const zone = await zoneRepository.findById(input.zone_id);
+      const zone = await zoneRepository.findById(userId, input.zone_id);
       if (!zone) {
         throw new AppError('Assigned zone not found', 404);
       }
     }
-    return productRepository.create(input);
+    return productRepository.create(userId, input);
   },
-  async update(id: string, input: ProductUpdateInput) {
+  async update(userId: string, id: string, input: ProductUpdateInput) {
     if (input.zone_id) {
-      const zone = await zoneRepository.findById(input.zone_id);
+      const zone = await zoneRepository.findById(userId, input.zone_id);
       if (!zone) {
         throw new AppError('Assigned zone not found', 404);
       }
     }
-    const product = await productRepository.findById(id);
+    const product = await productRepository.findById(userId, id);
     if (!product) {
       throw new AppError('Product not found', 404);
     }
-    return productRepository.update(id, input);
+    return productRepository.update(userId, id, input);
   },
-  async remove(id: string) {
-    const product = await productRepository.findById(id);
+  async remove(userId: string, id: string) {
+    const product = await productRepository.findById(userId, id);
     if (!product) {
       throw new AppError('Product not found', 404);
     }
-    await productRepository.remove(id);
+    await productRepository.remove(userId, id);
   }
 };

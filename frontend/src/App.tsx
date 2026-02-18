@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import DashboardLayout from './components/DashboardLayout';
 import CupboardGrid from './components/CupboardGrid';
 import ZoneModal from './components/ZoneModal';
-import { fetchProducts, fetchZoneProducts, fetchZones, updateZone } from './api/inventory';
+import { createZone, fetchProducts, fetchZoneProducts, fetchZones, updateZone } from './api/inventory';
 import { Product, Zone } from './api/types';
 import ProductTable from './components/ProductTable';
 import ProductManager from './components/ProductManager';
@@ -47,6 +47,8 @@ const App = () => {
   const [authToken, setAuthTokenState] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [userLoading, setUserLoading] = useState(false);
+  const [templateResetToken, setTemplateResetToken] = useState(0);
+  const seededZonesRef = useRef(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -108,13 +110,15 @@ const App = () => {
     }
   };
 
-  const loadUser = async () => {
+  const loadUser = async (): Promise<AuthUser | null> => {
     setUserLoading(true);
     try {
       const data = await fetchMe();
       setUser(data);
+      return data;
     } catch {
       setUser(null);
+      return null;
     } finally {
       setUserLoading(false);
     }
@@ -134,11 +138,57 @@ const App = () => {
       setZonesLoading(false);
       setProductsLoading(false);
       setUserLoading(false);
+      seededZonesRef.current = false;
       return;
     }
 
-    void Promise.all([loadAll(), loadUser()]);
+    const init = async () => {
+      await loadUser();
+      await loadAll();
+    };
+
+    void init();
   }, [authToken]);
+
+  useEffect(() => {
+    const seedMissingZones = async () => {
+      if (!authToken || zonesLoading || zonesError || userLoading) return;
+      if (!user || user.role !== 'admin') return;
+      if (seededZonesRef.current) return;
+
+      const missing = templateZones.filter(
+        (template) =>
+          !zones.some(
+            (zone) => zone.position_x === template.position_x && zone.position_y === template.position_y
+          )
+      );
+
+      if (missing.length === 0) {
+        seededZonesRef.current = true;
+        return;
+      }
+
+      seededZonesRef.current = true;
+      setZonesLoading(true);
+
+      try {
+        const created = await Promise.all(
+          missing.map((zone) =>
+            createZone({ name: zone.name, position_x: zone.position_x, position_y: zone.position_y })
+          )
+        );
+        setZones((prev) => [...prev, ...created]);
+      } catch {
+        seededZonesRef.current = false;
+        setTemplateResetToken((prev) => prev + 1);
+        setAlert('Unable to initialize cupboard zones. Please try again later.');
+      } finally {
+        setZonesLoading(false);
+      }
+    };
+
+    void seedMissingZones();
+  }, [authToken, zonesLoading, zonesError, userLoading, user, zones]);
 
   const stats = useMemo(() => {
     const totalQuantity = products.reduce((sum, product) => sum + product.quantity, 0);
@@ -169,24 +219,46 @@ const App = () => {
     }
   };
 
-  const handleZoneRename = async (zoneId: string, nextName: string) => {
+  const handleZoneRename = async (zone: Zone, nextName: string) => {
     const trimmed = nextName.trim();
-    const current = zones.find((zone) => zone.id === zoneId);
-    if (!current || trimmed.length === 0 || trimmed === current.name) {
+    if (trimmed.length === 0 || trimmed === zone.name) {
+      return;
+    }
+
+    const isTemplateZone = zone.id.startsWith('template-');
+
+    if (isTemplateZone) {
+      try {
+        const created = await createZone({
+          name: trimmed,
+          position_x: zone.position_x,
+          position_y: zone.position_y
+        });
+        setZones((prev) => [...prev, created]);
+        return;
+      } catch {
+        setTemplateResetToken((prev) => prev + 1);
+        setAlert('Unable to create the zone. Please try again later.');
+        return;
+      }
+    }
+
+    const current = zones.find((item) => item.id === zone.id);
+    if (!current) {
       return;
     }
 
     const previousName = current.name;
-    setZones((prev) => prev.map((zone) => (zone.id === zoneId ? { ...zone, name: trimmed } : zone)));
-    setSelectedZone((prev) => (prev && prev.id === zoneId ? { ...prev, name: trimmed } : prev));
+    setZones((prev) => prev.map((item) => (item.id === zone.id ? { ...item, name: trimmed } : item)));
+    setSelectedZone((prev) => (prev && prev.id === zone.id ? { ...prev, name: trimmed } : prev));
 
     try {
-      const updated = await updateZone(zoneId, { name: trimmed });
-      setZones((prev) => prev.map((zone) => (zone.id === zoneId ? updated : zone)));
-      setSelectedZone((prev) => (prev && prev.id === zoneId ? updated : prev));
+      const updated = await updateZone(zone.id, { name: trimmed });
+      setZones((prev) => prev.map((item) => (item.id === zone.id ? updated : item)));
+      setSelectedZone((prev) => (prev && prev.id === zone.id ? updated : prev));
     } catch {
-      setZones((prev) => prev.map((zone) => (zone.id === zoneId ? { ...zone, name: previousName } : zone)));
-      setSelectedZone((prev) => (prev && prev.id === zoneId ? { ...prev, name: previousName } : prev));
+      setZones((prev) => prev.map((item) => (item.id === zone.id ? { ...item, name: previousName } : item)));
+      setSelectedZone((prev) => (prev && prev.id === zone.id ? { ...prev, name: previousName } : prev));
       setAlert('Unable to update the zone name. Please try again later.');
     }
   };
@@ -262,8 +334,7 @@ const App = () => {
     </>
   );
 
-  const placeholderZones =
-    authToken && !zonesLoading && !zonesError && zones.length === 0 ? templateZones : undefined;
+  const placeholderZones = authToken ? templateZones : undefined;
 
   return (
     <DashboardLayout
@@ -286,6 +357,7 @@ const App = () => {
           error={zonesError}
           placeholderZones={placeholderZones}
           onRenameZone={handleZoneRename}
+          templateResetToken={templateResetToken}
         />
 
         <div className="flex flex-col gap-6 xl:self-start xl:pt-16">

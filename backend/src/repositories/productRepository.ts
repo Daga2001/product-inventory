@@ -39,37 +39,42 @@ const buildFilters = (filters: ProductFilters) => {
     values.push(filters.zone_id);
   }
 
-  const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-  return { where, values };
+  return { clauses, values };
 };
 
 export const productRepository = {
-  async findAll(filters: ProductFilters = {}): Promise<Product[]> {
-    const { where, values } = buildFilters(filters);
+  async findAll(userId: string, filters: ProductFilters = {}): Promise<Product[]> {
+    const { clauses, values } = buildFilters(filters);
+    clauses.push(`user_id = $${clauses.length + 1}`);
+    values.push(userId);
+    const where = `WHERE ${clauses.join(' AND ')}`;
     const result = await query(
       `SELECT * FROM products ${where} ORDER BY created_at DESC`,
       values
     );
     return result.rows;
   },
-  async findById(id: string): Promise<Product | null> {
-    const result = await query('SELECT * FROM products WHERE id = $1', [id]);
+  async findById(userId: string, id: string): Promise<Product | null> {
+    const result = await query('SELECT * FROM products WHERE id = $1 AND user_id = $2', [id, userId]);
     return result.rows[0] ?? null;
   },
-  async findByZoneId(zoneId: string): Promise<Product[]> {
-    const result = await query('SELECT * FROM products WHERE zone_id = $1 ORDER BY name', [zoneId]);
+  async findByZoneId(userId: string, zoneId: string): Promise<Product[]> {
+    const result = await query(
+      'SELECT * FROM products WHERE zone_id = $1 AND user_id = $2 ORDER BY name',
+      [zoneId, userId]
+    );
     return result.rows;
   },
-  async create(input: ProductCreateInput): Promise<Product> {
+  async create(userId: string, input: ProductCreateInput): Promise<Product> {
     const result = await query(
-      `INSERT INTO products (name, batch_number, quantity, expiration_date, zone_id)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO products (user_id, name, batch_number, quantity, expiration_date, zone_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [input.name, input.batch_number, input.quantity, input.expiration_date, input.zone_id]
+      [userId, input.name, input.batch_number, input.quantity, input.expiration_date, input.zone_id]
     );
     return result.rows[0];
   },
-  async update(id: string, input: ProductUpdateInput): Promise<Product> {
+  async update(userId: string, id: string, input: ProductUpdateInput): Promise<Product> {
     const fields: string[] = [];
     const values: unknown[] = [];
 
@@ -85,7 +90,7 @@ export const productRepository = {
     if (input.zone_id !== undefined) append('zone_id', input.zone_id);
 
     if (fields.length === 0) {
-      const existing = await this.findById(id);
+      const existing = await this.findById(userId, id);
       if (!existing) {
         throw new Error('Product not found');
       }
@@ -93,13 +98,15 @@ export const productRepository = {
     }
 
     const result = await query(
-      `UPDATE products SET ${fields.join(', ')} WHERE id = $${fields.length + 1} RETURNING *`,
-      [...values, id]
+      `UPDATE products SET ${fields.join(', ')} WHERE id = $${fields.length + 1} AND user_id = $${
+        fields.length + 2
+      } RETURNING *`,
+      [...values, id, userId]
     );
 
     return result.rows[0];
   },
-  async remove(id: string): Promise<void> {
-    await query('DELETE FROM products WHERE id = $1', [id]);
+  async remove(userId: string, id: string): Promise<void> {
+    await query('DELETE FROM products WHERE id = $1 AND user_id = $2', [id, userId]);
   }
 };
