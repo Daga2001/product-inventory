@@ -2,6 +2,12 @@
 
 This repo provides a clean-architecture inventory system with a visual cupboard layout, product tracking, batch management, and JWT authentication.
 
+## Architecture Stack
+
+- Frontend: React 18, Vite 5, TypeScript, Tailwind CSS, Axios, ExcelJS
+- Backend: Node.js 18, Express 4, TypeScript, Zod, JWT, bcryptjs, Helmet, Morgan, CORS
+- Database: PostgreSQL 14+, pg client
+
 ## Deliverables
 
 - Database schema: `docs/schema.sql`
