@@ -378,25 +378,65 @@ const App = () => {
             <p className="mt-2 text-sm text-slate">Live totals across all zones.</p>
             <div className="mt-6 grid grid-cols-2 gap-4">
               <div className="stat-tile">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate">Products</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate">
+                  Products
+                  <button
+                    type="button"
+                    className="help-tip ml-2"
+                    data-tip="Total count of products in your cupboard."
+                    aria-label="Total count of products in your cupboard."
+                  >
+                    ?
+                  </button>
+                </p>
                 <p className="mt-2 text-2xl font-semibold text-ink">
                   {productsLoading ? '—' : stats.totalProducts}
                 </p>
               </div>
               <div className="stat-tile">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate">Total Qty</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate">
+                  Total Qty
+                  <button
+                    type="button"
+                    className="help-tip ml-2"
+                    data-tip="Sum of all quantities across products."
+                    aria-label="Sum of all quantities across products."
+                  >
+                    ?
+                  </button>
+                </p>
                 <p className="mt-2 text-2xl font-semibold text-ink">
                   {productsLoading ? '—' : stats.totalQuantity}
                 </p>
               </div>
               <div className="stat-tile">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate">Expiring Soon</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate">
+                  Expiring Soon
+                  <button
+                    type="button"
+                    className="help-tip ml-2"
+                    data-tip="Products expiring within the next 30 days."
+                    aria-label="Products expiring within the next 30 days."
+                  >
+                    ?
+                  </button>
+                </p>
                 <p className="mt-2 text-2xl font-semibold text-ink">
                   {productsLoading ? '—' : stats.expiringSoon}
                 </p>
               </div>
               <div className="stat-tile">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate">Zones</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate">
+                  Zones
+                  <button
+                    type="button"
+                    className="help-tip ml-2"
+                    data-tip="Number of cupboard zones available."
+                    aria-label="Number of cupboard zones available."
+                  >
+                    ?
+                  </button>
+                </p>
                 <p className="mt-2 text-2xl font-semibold text-ink">
                   {zonesLoading ? '—' : zones.length}
                 </p>
@@ -410,7 +450,6 @@ const App = () => {
                 <h2 className="font-display text-xl">Products</h2>
                 <p className="text-sm text-slate">Latest inventory entries.</p>
               </div>
-              <button className="rounded-full ghost-pill px-4 py-2 text-sm">Manage</button>
             </div>
             <div className="mt-4">
               {productsLoading ? (

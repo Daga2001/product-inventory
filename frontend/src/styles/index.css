@@ -276,6 +276,8 @@ body {
   @apply relative inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate/30 text-xs text-slate transition;
   background: transparent;
   cursor: pointer;
+  line-height: 1;
+  vertical-align: middle;
 }
 
 .help-tip:hover,
