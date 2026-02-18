@@ -33,16 +33,47 @@ const ProductManager = ({
   const [saving, setSaving] = useState(false);
   const [listPage, setListPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expiryFilter, setExpiryFilter] = useState<'all' | 'expiring' | 'no-expiry'>('all');
 
-  const totalPages = Math.max(1, Math.ceil(products.length / pageSize));
+  const filteredProducts = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    const now = Date.now();
+    const thirtyDays = 1000 * 60 * 60 * 24 * 30;
+
+    return products.filter((product) => {
+      if (term) {
+        const haystack = `${product.name} ${product.batch_number}`.toLowerCase();
+        if (!haystack.includes(term)) return false;
+      }
+
+      if (expiryFilter === 'expiring') {
+        if (!product.expiration_date) return false;
+        const exp = new Date(product.expiration_date).getTime();
+        return exp - now <= thirtyDays;
+      }
+
+      if (expiryFilter === 'no-expiry') {
+        return !product.expiration_date;
+      }
+
+      return true;
+    });
+  }, [products, searchTerm, expiryFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
   const pagedProducts = useMemo(() => {
     const start = (listPage - 1) * pageSize;
-    return products.slice(start, start + pageSize);
-  }, [products, listPage, pageSize]);
+    return filteredProducts.slice(start, start + pageSize);
+  }, [filteredProducts, listPage, pageSize]);
 
   useEffect(() => {
     setListPage((prev) => Math.min(prev, totalPages));
   }, [totalPages]);
+
+  useEffect(() => {
+    setListPage(1);
+  }, [searchTerm, expiryFilter]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -246,25 +277,42 @@ const ProductManager = ({
 
       <div className="mt-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate">
-          <label className="flex items-center gap-2">
-            <span>Rows per page</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              className="form-field min-w-[200px]"
+              placeholder="Search by name or batch..."
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+            />
             <select
-              className="form-field w-24"
-              value={pageSize}
-              onChange={(event) => {
-                setPageSize(Number(event.target.value));
-                setListPage(1);
-              }}
-              disabled={isLoading}
+              className="form-field w-44"
+              value={expiryFilter}
+              onChange={(event) => setExpiryFilter(event.target.value as typeof expiryFilter)}
             >
-              {[5, 10, 15, 20].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
+              <option value="all">All expirations</option>
+              <option value="expiring">Expiring soon</option>
+              <option value="no-expiry">No expiry</option>
             </select>
-          </label>
-          {products.length > pageSize ? (
+            <label className="flex items-center gap-2">
+              <span>Rows per page</span>
+              <select
+                className="form-field w-24"
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value));
+                  setListPage(1);
+                }}
+                disabled={isLoading}
+              >
+                {[5, 10, 15, 20].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          {filteredProducts.length > pageSize ? (
             <div className="flex items-center gap-2">
               <span>
                 Page {listPage} of {totalPages}
@@ -292,6 +340,8 @@ const ProductManager = ({
           <div className="empty-state">Loading products...</div>
         ) : products.length === 0 ? (
           <div className="empty-state">No products yet.</div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="empty-state">No matching products.</div>
         ) : (
           <div className="space-y-3">
             {pagedProducts.map((product) => (
