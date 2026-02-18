@@ -27,6 +27,71 @@ body {
   @apply border-ink/20 shadow-card;
 }
 
+.form-field {
+  @apply rounded-xl border border-slate/20 px-4 py-2 bg-white transition duration-200;
+}
+
+.form-field:hover {
+  @apply border-ink/30 shadow-sm;
+}
+
+.form-field:focus {
+  @apply outline-none ring-2 ring-accent/30 border-accent;
+}
+
+.form-field:disabled {
+  @apply bg-slate/10 text-slate cursor-not-allowed;
+}
+
+.help-tip {
+  @apply relative inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate/30 text-xs text-slate transition;
+}
+
+.help-tip:hover {
+  @apply border-ink/40 text-ink bg-white;
+}
+
+.help-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  min-width: 200px;
+  max-width: 240px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 18px 35px -18px rgba(15, 23, 42, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 20;
+}
+
+.help-tip::before {
+  content: '';
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 19;
+}
+
+.help-tip:hover::after,
+.help-tip:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 .modal-backdrop {
   @apply fixed inset-0 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4;
 }

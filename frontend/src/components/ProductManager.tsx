@@ -103,48 +103,118 @@ const ProductManager = ({
       </div>
 
       <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-        <input
-          className="rounded-xl border border-slate/20 px-4 py-2"
-          placeholder="Product name"
-          value={form.name}
-          onChange={(event) => setForm({ ...form, name: event.target.value })}
-          required
-        />
-        <input
-          className="rounded-xl border border-slate/20 px-4 py-2"
-          placeholder="Batch number"
-          value={form.batch_number}
-          onChange={(event) => setForm({ ...form, batch_number: event.target.value })}
-          required
-        />
-        <input
-          className="rounded-xl border border-slate/20 px-4 py-2"
-          type="number"
-          min={0}
-          placeholder="Quantity"
-          value={form.quantity}
-          onChange={(event) => setForm({ ...form, quantity: Number(event.target.value) })}
-          required
-        />
-        <input
-          className="rounded-xl border border-slate/20 px-4 py-2"
-          type="date"
-          value={form.expiration_date}
-          onChange={(event) => setForm({ ...form, expiration_date: event.target.value })}
-        />
-        <select
-          className="rounded-xl border border-slate/20 px-4 py-2"
-          value={form.zone_id}
-          onChange={(event) => setForm({ ...form, zone_id: event.target.value })}
-          disabled={zonesLoading}
-        >
-          <option value="">Unassigned</option>
-          {zones.map((zone) => (
-            <option key={zone.id} value={zone.id}>
-              {zone.name}
-            </option>
-          ))}
-        </select>
+        <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="product-name">
+          <span className="flex items-center gap-2 text-ink">
+            Product name
+            <span
+              className="help-tip"
+              data-tip="Enter the product name exactly as it appears on the package."
+              aria-label="Enter the product name exactly as it appears on the package."
+            >
+              ?
+            </span>
+          </span>
+          <input
+            id="product-name"
+            className="form-field"
+            placeholder="Basmati Rice 5kg"
+            value={form.name}
+            onChange={(event) => setForm({ ...form, name: event.target.value })}
+            required
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="batch-number">
+          <span className="flex items-center gap-2 text-ink">
+            Batch number
+            <span
+              className="help-tip"
+              data-tip="Use the batch or lot code printed on the package for traceability."
+              aria-label="Use the batch or lot code printed on the package for traceability."
+            >
+              ?
+            </span>
+          </span>
+          <input
+            id="batch-number"
+            className="form-field"
+            placeholder="BR-2025-01"
+            value={form.batch_number}
+            onChange={(event) => setForm({ ...form, batch_number: event.target.value })}
+            required
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="product-quantity">
+          <span className="flex items-center gap-2 text-ink">
+            Quantity
+            <span
+              className="help-tip"
+              data-tip="Enter how many units are currently in stock."
+              aria-label="Enter how many units are currently in stock."
+            >
+              ?
+            </span>
+          </span>
+          <input
+            id="product-quantity"
+            className="form-field"
+            type="number"
+            min={0}
+            placeholder="0"
+            value={form.quantity}
+            onChange={(event) => setForm({ ...form, quantity: Number(event.target.value) })}
+            required
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="expiration-date">
+          <span className="flex items-center gap-2 text-ink">
+            Expiration date
+            <span
+              className="help-tip"
+              data-tip="Optional. Use the best-before or expiration date on the package."
+              aria-label="Optional. Use the best-before or expiration date on the package."
+            >
+              ?
+            </span>
+          </span>
+          <input
+            id="expiration-date"
+            className="form-field"
+            type="date"
+            value={form.expiration_date}
+            onChange={(event) => setForm({ ...form, expiration_date: event.target.value })}
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="zone-select">
+          <span className="flex items-center gap-2 text-ink">
+            Zone assignment
+            <span
+              className="help-tip"
+              data-tip="Pick the cupboard zone where this product is stored."
+              aria-label="Pick the cupboard zone where this product is stored."
+            >
+              ?
+            </span>
+          </span>
+          <select
+            id="zone-select"
+            className="form-field"
+            value={form.zone_id}
+            onChange={(event) => setForm({ ...form, zone_id: event.target.value })}
+            disabled={zonesLoading}
+          >
+            <option value="">Unassigned</option>
+            {zones.map((zone) => (
+              <option key={zone.id} value={zone.id}>
+                {zone.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <button
           type="submit"
           disabled={saving}
