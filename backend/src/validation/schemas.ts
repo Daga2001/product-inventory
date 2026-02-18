@@ -35,9 +35,32 @@ export const zoneUpdateSchema = z.object({
   })
 });
 
-const dateString = z
-  .string()
-  .regex(/^\\d{4}-\\d{2}-\\d{2}$/, 'Expected YYYY-MM-DD date string');
+const normalizeDate = (value: unknown) => {
+  if (typeof value !== 'string') return value;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const slashMatch = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (slashMatch) {
+    const part1 = Number(slashMatch[1]);
+    const part2 = Number(slashMatch[2]);
+    const year = slashMatch[3];
+    if (part1 > 12 && part2 <= 12) {
+      return `${year}-${String(part2).padStart(2, '0')}-${String(part1).padStart(2, '0')}`;
+    }
+    return `${year}-${String(part1).padStart(2, '0')}-${String(part2).padStart(2, '0')}`;
+  }
+  const parsed = new Date(trimmed);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().slice(0, 10);
+  }
+  return trimmed;
+};
+
+const dateString = z.preprocess(
+  normalizeDate,
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD date string')
+);
 
 export const productCreateSchema = z.object({
   body: z.object({
