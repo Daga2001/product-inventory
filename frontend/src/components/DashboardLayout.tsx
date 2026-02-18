@@ -4,9 +4,10 @@ interface DashboardLayoutProps {
   title: string;
   subtitle: string;
   children: React.ReactNode;
+  actions?: React.ReactNode;
 }
 
-const DashboardLayout = ({ title, subtitle, children }: DashboardLayoutProps) => {
+const DashboardLayout = ({ title, subtitle, children, actions }: DashboardLayoutProps) => {
   return (
     <div className="min-h-screen px-6 py-10 lg:px-16">
       <header className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -16,8 +17,12 @@ const DashboardLayout = ({ title, subtitle, children }: DashboardLayoutProps) =>
           <p className="mt-2 text-slate max-w-2xl">{subtitle}</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="badge">Live Zones</span>
-          <button className="rounded-full bg-ink text-white px-5 py-2 text-sm font-medium">Add Product</button>
+          {actions ?? (
+            <>
+              <span className="badge">Live Zones</span>
+              <button className="rounded-full bg-ink text-white px-5 py-2 text-sm font-medium">Add Product</button>
+            </>
+          )}
         </div>
       </header>
       {children}

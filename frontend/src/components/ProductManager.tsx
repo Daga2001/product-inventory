@@ -6,6 +6,9 @@ interface ProductManagerProps {
   zones: Zone[];
   products: Product[];
   onChange: (products: Product[]) => void;
+  isLoading?: boolean;
+  zonesLoading?: boolean;
+  error?: string | null;
 }
 
 const emptyForm = {
@@ -17,7 +20,14 @@ const emptyForm = {
   zone_id: ''
 };
 
-const ProductManager = ({ zones, products, onChange }: ProductManagerProps) => {
+const ProductManager = ({
+  zones,
+  products,
+  onChange,
+  isLoading = false,
+  zonesLoading = false,
+  error
+}: ProductManagerProps) => {
   const [form, setForm] = useState(emptyForm);
   const [status, setStatus] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -48,7 +58,7 @@ const ProductManager = ({ zones, products, onChange }: ProductManagerProps) => {
 
       setForm(emptyForm);
     } catch (error) {
-      setStatus('Action failed. Check API connection and permissions.');
+      setStatus('Action failed. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -72,7 +82,7 @@ const ProductManager = ({ zones, products, onChange }: ProductManagerProps) => {
       onChange(products.filter((item) => item.id !== product.id));
       setStatus('Product deleted.');
     } catch (error) {
-      setStatus('Delete failed.');
+      setStatus('Delete failed. Please try again.');
     }
   };
 
@@ -126,6 +136,7 @@ const ProductManager = ({ zones, products, onChange }: ProductManagerProps) => {
           className="rounded-xl border border-slate/20 px-4 py-2"
           value={form.zone_id}
           onChange={(event) => setForm({ ...form, zone_id: event.target.value })}
+          disabled={zonesLoading}
         >
           <option value="">Unassigned</option>
           {zones.map((zone) => (
@@ -144,9 +155,14 @@ const ProductManager = ({ zones, products, onChange }: ProductManagerProps) => {
       </form>
 
       {status ? <p className="mt-3 text-sm text-slate">{status}</p> : null}
+      {!status && error ? <p className="mt-3 text-sm text-warning">{error}</p> : null}
 
       <div className="mt-6">
-        {products.length === 0 ? (
+        {isLoading ? (
+          <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
+            Loading products...
+          </div>
+        ) : products.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
             No products yet.
           </div>

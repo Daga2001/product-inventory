@@ -35,6 +35,22 @@ Optional seed data:
 psql inventory -f backend/src/db/seed.sql
 ```
 
+**Using Neon (cloud Postgres)**
+
+If you use a Neon connection string in `backend/.env`, you still need to apply the schema once. The backend does not run migrations automatically.
+
+```bash
+psql "$DATABASE_URL" -f backend/src/db/schema.sql
+```
+
+Optional seed data:
+
+```bash
+psql "$DATABASE_URL" -f backend/src/db/seed.sql
+```
+
+You can also paste the contents of `backend/src/db/schema.sql` into Neon’s SQL Editor and run it.
+
 **2. Backend**
 
 Create `backend/.env` using `backend/.env.example` and set values:
@@ -76,6 +92,6 @@ The UI will be available at `http://localhost:5173`.
 
 ## Notes
 
-- The frontend includes a demo-data fallback when the API is not reachable.
+- The frontend shows explicit loading/error/empty states when the API is not reachable.
 - Use `VITE_API_URL` to point the UI at the backend.
 - `docs/seed.sql` contains placeholder bcrypt hashes. Replace `REPLACE_WITH_BCRYPT_HASH` before seeding users.

@@ -5,9 +5,11 @@ interface ZoneModalProps {
   zone: Zone;
   products: Product[];
   onClose: () => void;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
-const ZoneModal = ({ zone, products, onClose }: ZoneModalProps) => {
+const ZoneModal = ({ zone, products, onClose, isLoading = false, error }: ZoneModalProps) => {
   return (
     <div className="modal-backdrop">
       <div className="modal-panel p-6">
@@ -29,7 +31,15 @@ const ZoneModal = ({ zone, products, onClose }: ZoneModalProps) => {
         </div>
 
         <div className="mt-6">
-          {products.length === 0 ? (
+          {isLoading ? (
+            <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
+              Loading products...
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-dashed border-warning/40 p-6 text-center text-warning">
+              Unable to load products for this zone. Please try again later.
+            </div>
+          ) : products.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate/30 p-6 text-center text-slate">
               No products assigned.
             </div>
