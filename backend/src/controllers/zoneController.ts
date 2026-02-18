@@ -1,8 +1,9 @@
 import { zoneService } from '../services/zoneService.js';
 import { AppError } from '../utils/errors.js';
+import type { NextFunction, Request, Response } from 'express';
 
 export const zoneController = {
-  async list(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async list(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);
@@ -13,7 +14,7 @@ export const zoneController = {
       next(error);
     }
   },
-  async create(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);
@@ -24,7 +25,7 @@ export const zoneController = {
       next(error);
     }
   },
-  async update(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);
@@ -35,7 +36,7 @@ export const zoneController = {
       next(error);
     }
   },
-  async remove(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async remove(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);

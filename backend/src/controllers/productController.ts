@@ -1,8 +1,9 @@
 import { productService } from '../services/productService.js';
 import { AppError } from '../utils/errors.js';
+import type { NextFunction, Request, Response } from 'express';
 
 export const productController = {
-  async list(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async list(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);
@@ -13,7 +14,7 @@ export const productController = {
       next(error);
     }
   },
-  async get(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async get(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);
@@ -24,7 +25,7 @@ export const productController = {
       next(error);
     }
   },
-  async listByZone(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async listByZone(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);
@@ -35,7 +36,7 @@ export const productController = {
       next(error);
     }
   },
-  async create(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);
@@ -46,7 +47,7 @@ export const productController = {
       next(error);
     }
   },
-  async update(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);
@@ -57,7 +58,7 @@ export const productController = {
       next(error);
     }
   },
-  async remove(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async remove(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);

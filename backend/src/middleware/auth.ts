@@ -2,13 +2,14 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { AppError } from '../utils/errors.js';
 import { Role } from '../types/index.js';
+import type { NextFunction, Request, Response } from 'express';
 
 interface TokenPayload {
   sub: string;
   role: Role;
 }
 
-export const authenticate = (req: Express.Request, _res: Express.Response, next: Express.NextFunction) => {
+export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
     return next(new AppError('Missing or invalid Authorization header', 401));
@@ -25,7 +26,7 @@ export const authenticate = (req: Express.Request, _res: Express.Response, next:
 };
 
 export const requireRole = (role: Role) => {
-  return (req: Express.Request, _res: Express.Response, next: Express.NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) {
       return next(new AppError('Unauthorized', 401));
     }

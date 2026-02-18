@@ -1,9 +1,10 @@
 import { authService } from '../services/authService.js';
 import { userRepository } from '../repositories/userRepository.js';
 import { AppError } from '../utils/errors.js';
+import type { NextFunction, Request, Response } from 'express';
 
 export const authController = {
-  async register(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async register(req: Request, res: Response, next: NextFunction) {
     try {
       const { name, email, password, role } = req.body;
       const token = await authService.register(name, email, password, role);
@@ -12,7 +13,7 @@ export const authController = {
       next(error);
     }
   },
-  async login(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
       const token = await authService.login(email, password);
@@ -21,7 +22,7 @@ export const authController = {
       next(error);
     }
   },
-  async me(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+  async me(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new AppError('Unauthorized', 401);

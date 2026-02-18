@@ -1,8 +1,9 @@
 import { ZodSchema } from 'zod';
 import { AppError } from '../utils/errors.js';
+import type { NextFunction, Request, Response } from 'express';
 
 export const validate = (schema: ZodSchema) => {
-  return (req: Express.Request, _res: Express.Response, next: Express.NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     const result = schema.safeParse({
       body: req.body,
       params: req.params,
