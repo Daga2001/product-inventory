@@ -11,6 +11,33 @@ import { fetchMe, login, type AuthUser } from './api/auth';
 
 const describeError = () => 'Unable to load data. Please try again later.';
 
+const templateZones: Zone[] = [
+  { id: 'template-top-a', name: 'Top A', position_x: 1, position_y: 1, created_at: '' },
+  { id: 'template-top-b', name: 'Top B', position_x: 2, position_y: 1, created_at: '' },
+  { id: 'template-top-c', name: 'Top C', position_x: 3, position_y: 1, created_at: '' },
+  { id: 'template-top-d', name: 'Top D', position_x: 4, position_y: 1, created_at: '' },
+  { id: 'template-row2-1', name: 'Row2-1', position_x: 1, position_y: 2, created_at: '' },
+  { id: 'template-row2-2', name: 'Row2-2', position_x: 2, position_y: 2, created_at: '' },
+  { id: 'template-row2-3', name: 'Row2-3', position_x: 3, position_y: 2, created_at: '' },
+  { id: 'template-row2-4', name: 'Row2-4', position_x: 4, position_y: 2, created_at: '' },
+  { id: 'template-row2-5', name: 'Row2-5', position_x: 5, position_y: 2, created_at: '' },
+  { id: 'template-row3-1', name: 'Row3-1', position_x: 1, position_y: 3, created_at: '' },
+  { id: 'template-row3-2', name: 'Row3-2', position_x: 2, position_y: 3, created_at: '' },
+  { id: 'template-row3-3', name: 'Row3-3', position_x: 3, position_y: 3, created_at: '' },
+  { id: 'template-row3-4', name: 'Row3-4', position_x: 4, position_y: 3, created_at: '' },
+  { id: 'template-row3-5', name: 'Row3-5', position_x: 5, position_y: 3, created_at: '' },
+  { id: 'template-row4-1', name: 'Row4-1', position_x: 1, position_y: 4, created_at: '' },
+  { id: 'template-row4-2', name: 'Row4-2', position_x: 2, position_y: 4, created_at: '' },
+  { id: 'template-row4-3', name: 'Row4-3', position_x: 3, position_y: 4, created_at: '' },
+  { id: 'template-row4-4', name: 'Row4-4', position_x: 4, position_y: 4, created_at: '' },
+  { id: 'template-row4-5', name: 'Row4-5', position_x: 5, position_y: 4, created_at: '' },
+  { id: 'template-row5-1', name: 'Row5-1', position_x: 1, position_y: 5, created_at: '' },
+  { id: 'template-row5-2', name: 'Row5-2', position_x: 2, position_y: 5, created_at: '' },
+  { id: 'template-row5-3', name: 'Row5-3', position_x: 3, position_y: 5, created_at: '' },
+  { id: 'template-row5-4', name: 'Row5-4', position_x: 4, position_y: 5, created_at: '' },
+  { id: 'template-row5-5', name: 'Row5-5', position_x: 5, position_y: 5, created_at: '' }
+];
+
 const App = () => {
   const [zones, setZones] = useState<Zone[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -213,6 +240,9 @@ const App = () => {
     </>
   );
 
+  const placeholderZones =
+    authToken && !zonesLoading && !zonesError && zones.length === 0 ? templateZones : undefined;
+
   return (
     <DashboardLayout
       title="Cupboard Inventory"
@@ -232,6 +262,7 @@ const App = () => {
           onSelect={handleZoneSelect}
           isLoading={zonesLoading}
           error={zonesError}
+          placeholderZones={placeholderZones}
         />
 
         <div className="flex flex-col gap-6">

@@ -6,17 +6,29 @@ interface CupboardGridProps {
   onSelect: (zone: Zone) => void;
   isLoading?: boolean;
   error?: string | null;
+  placeholderZones?: Zone[];
 }
 
-const CupboardGrid = ({ zones, selectedZoneId, onSelect, isLoading = false, error }: CupboardGridProps) => {
-  const topZones = zones.filter((zone) => zone.position_y === 1);
-  const lowerZones = zones.filter((zone) => zone.position_y > 1);
+const CupboardGrid = ({
+  zones,
+  selectedZoneId,
+  onSelect,
+  isLoading = false,
+  error,
+  placeholderZones
+}: CupboardGridProps) => {
+  const hasRealZones = zones.length > 0;
+  const isPlaceholderMode = !hasRealZones && (placeholderZones?.length ?? 0) > 0;
+  const displayZones = hasRealZones ? zones : placeholderZones ?? [];
+  const topZones = displayZones.filter((zone) => zone.position_y === 1);
+  const lowerZones = displayZones.filter((zone) => zone.position_y > 1);
   const lowerMaxX = Math.max(...lowerZones.map((zone) => zone.position_x), 5);
   const lowerMaxY = Math.max(...lowerZones.map((zone) => zone.position_y), 2);
   const lowerRowCount = lowerZones.length ? lowerMaxY - 1 : 0;
   const topRowHeight = 180;
   const rowHeight = lowerMaxY > 4 ? 96 : 110;
-  const hasZones = zones.length > 0;
+  const hasZones = displayZones.length > 0;
+  const zoneCount = hasRealZones ? zones.length : placeholderZones?.length ?? 0;
 
   return (
     <div className="card p-6">
@@ -25,7 +37,9 @@ const CupboardGrid = ({ zones, selectedZoneId, onSelect, isLoading = false, erro
           <h2 className="font-display text-xl">Cupboard Layout</h2>
           <p className="text-sm text-slate">Click a zone to view assigned products.</p>
         </div>
-        <span className="text-xs text-slate">{isLoading ? '—' : `${zones.length} zones`}</span>
+        <span className="text-xs text-slate">
+          {isLoading ? '—' : isPlaceholderMode ? `${zoneCount} template zones` : `${zoneCount} zones`}
+        </span>
       </div>
       <div className="rounded-3xl border border-slate/15 bg-white/70 p-4 sm:p-6 overflow-x-auto">
         {isLoading ? (
@@ -40,9 +54,8 @@ const CupboardGrid = ({ zones, selectedZoneId, onSelect, isLoading = false, erro
           <>
             {topZones.length > 0 ? (
               <div
-                className="grid gap-4 sm:gap-5 w-fit max-w-full mx-auto min-w-[520px] sm:min-w-0"
+                className="top-zone-grid gap-3 sm:gap-5"
                 style={{
-                  gridTemplateColumns: `repeat(${topZones.length}, minmax(130px, 170px))`,
                   gridAutoRows: `${topRowHeight}px`
                 }}
               >
@@ -52,10 +65,11 @@ const CupboardGrid = ({ zones, selectedZoneId, onSelect, isLoading = false, erro
                     <button
                       key={zone.id}
                       type="button"
-                      onClick={() => onSelect(zone)}
+                      onClick={isPlaceholderMode ? undefined : () => onSelect(zone)}
+                      disabled={isPlaceholderMode}
                       className={`grid-cell text-left p-4 ${
                         isActive ? 'border-accent shadow-card bg-accentSoft/50' : ''
-                      }`}
+                      } ${isPlaceholderMode ? 'opacity-80 cursor-default' : ''}`}
                     >
                       <div>
                         <p className="text-xs uppercase tracking-[0.2em] text-slate">Zone</p>
@@ -82,10 +96,11 @@ const CupboardGrid = ({ zones, selectedZoneId, onSelect, isLoading = false, erro
                     <button
                       key={zone.id}
                       type="button"
-                      onClick={() => onSelect(zone)}
+                      onClick={isPlaceholderMode ? undefined : () => onSelect(zone)}
+                      disabled={isPlaceholderMode}
                       className={`grid-cell text-left p-4 ${
                         isActive ? 'border-accent shadow-card bg-accentSoft/50' : ''
-                      }`}
+                      } ${isPlaceholderMode ? 'opacity-80 cursor-default' : ''}`}
                       style={{
                         gridColumn: `${zone.position_x}`,
                         gridRow: `${zone.position_y - 1}`

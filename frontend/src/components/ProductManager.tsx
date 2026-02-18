@@ -106,13 +106,14 @@ const ProductManager = ({
         <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="product-name">
           <span className="flex items-center gap-2 text-ink">
             Product name
-            <span
+            <button
+              type="button"
               className="help-tip"
               data-tip="Enter the product name exactly as it appears on the package."
               aria-label="Enter the product name exactly as it appears on the package."
             >
               ?
-            </span>
+            </button>
           </span>
           <input
             id="product-name"
@@ -127,13 +128,14 @@ const ProductManager = ({
         <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="batch-number">
           <span className="flex items-center gap-2 text-ink">
             Batch number
-            <span
+            <button
+              type="button"
               className="help-tip"
               data-tip="Use the batch or lot code printed on the package for traceability."
               aria-label="Use the batch or lot code printed on the package for traceability."
             >
               ?
-            </span>
+            </button>
           </span>
           <input
             id="batch-number"
@@ -148,13 +150,14 @@ const ProductManager = ({
         <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="product-quantity">
           <span className="flex items-center gap-2 text-ink">
             Quantity
-            <span
+            <button
+              type="button"
               className="help-tip"
               data-tip="Enter how many units are currently in stock."
               aria-label="Enter how many units are currently in stock."
             >
               ?
-            </span>
+            </button>
           </span>
           <input
             id="product-quantity"
@@ -171,13 +174,14 @@ const ProductManager = ({
         <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="expiration-date">
           <span className="flex items-center gap-2 text-ink">
             Expiration date
-            <span
+            <button
+              type="button"
               className="help-tip"
               data-tip="Optional. Use the best-before or expiration date on the package."
               aria-label="Optional. Use the best-before or expiration date on the package."
             >
               ?
-            </span>
+            </button>
           </span>
           <input
             id="expiration-date"
@@ -191,13 +195,14 @@ const ProductManager = ({
         <label className="flex flex-col gap-2 text-sm text-slate" htmlFor="zone-select">
           <span className="flex items-center gap-2 text-ink">
             Zone assignment
-            <span
+            <button
+              type="button"
               className="help-tip"
               data-tip="Pick the cupboard zone where this product is stored."
               aria-label="Pick the cupboard zone where this product is stored."
             >
               ?
-            </span>
+            </button>
           </span>
           <select
             id="zone-select"

@@ -27,6 +27,21 @@ body {
   @apply border-ink/20 shadow-card;
 }
 
+.top-zone-grid {
+  display: grid;
+  width: max-content;
+  margin-left: auto;
+  margin-right: auto;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(140px, 170px);
+}
+
+@media (min-width: 640px) {
+  .top-zone-grid {
+    grid-auto-columns: minmax(130px, 170px);
+  }
+}
+
 .form-field {
   @apply rounded-xl border border-slate/20 px-4 py-2 bg-white transition duration-200;
 }
@@ -45,9 +60,14 @@ body {
 
 .help-tip {
   @apply relative inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate/30 text-xs text-slate transition;
+  background: transparent;
+  cursor: pointer;
 }
 
-.help-tip:hover {
+.help-tip:hover,
+.help-tip:focus,
+.help-tip:focus-visible,
+.help-tip:active {
   @apply border-ink/40 text-ink bg-white;
 }
 
@@ -87,7 +107,13 @@ body {
 }
 
 .help-tip:hover::after,
-.help-tip:hover::before {
+.help-tip:hover::before,
+.help-tip:focus::after,
+.help-tip:focus::before,
+.help-tip:focus-visible::after,
+.help-tip:focus-visible::before,
+.help-tip:active::after,
+.help-tip:active::before {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
