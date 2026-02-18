@@ -60,6 +60,7 @@ const App = () => {
   const [productsError, setProductsError] = useState<string | null>(null);
   const [zoneProductsError, setZoneProductsError] = useState<string | null>(null);
   const [productsPage, setProductsPage] = useState(1);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -203,6 +204,17 @@ const App = () => {
     return { totalProducts: products.length, totalQuantity, expiringSoon };
   }, [products]);
 
+  const reportZones = useMemo(() => {
+    if (zones.length === 0) return templateZones;
+    const templateKeys = new Set(templateZones.map((zone) => `${zone.position_x}-${zone.position_y}`));
+    const zoneByPosition = new Map(zones.map((zone) => [`${zone.position_x}-${zone.position_y}`, zone]));
+    const merged = templateZones.map(
+      (zone) => zoneByPosition.get(`${zone.position_x}-${zone.position_y}`) ?? zone
+    );
+    const extras = zones.filter((zone) => !templateKeys.has(`${zone.position_x}-${zone.position_y}`));
+    return extras.length ? [...merged, ...extras] : merged;
+  }, [zones]);
+
   const productsPerPage = 5;
   const totalProductPages = Math.max(1, Math.ceil(products.length / productsPerPage));
   const pagedProducts = useMemo(() => {
@@ -272,6 +284,21 @@ const App = () => {
       setZones((prev) => prev.map((item) => (item.id === zone.id ? { ...item, name: previousName } : item)));
       setSelectedZone((prev) => (prev && prev.id === zone.id ? { ...prev, name: previousName } : prev));
       setAlert('Unable to update the zone name. Please try again later.');
+    }
+  };
+
+  const handleDownloadReport = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    setAlert(null);
+
+    try {
+      const { downloadInventoryReport } = await import('./utils/report');
+      await downloadInventoryReport({ zones: reportZones, products });
+    } catch {
+      setAlert('Unable to generate the report. Please try again later.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -445,11 +472,19 @@ const App = () => {
           </div>
 
           <div className="card p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="font-display text-xl">Products</h2>
                 <p className="text-sm text-slate">Latest inventory entries.</p>
               </div>
+              <button
+                type="button"
+                onClick={handleDownloadReport}
+                disabled={isExporting}
+                className="rounded-full ghost-pill px-4 py-2 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isExporting ? 'Preparing Report...' : 'Download Excel'}
+              </button>
             </div>
             <div className="mt-4">
               {productsLoading ? (
